@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ATSP - Almaty Tempo Space Planning</title>
+  <link rel="icon" type="image/x-icon" href="icon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'Bauhaus';
+      src: url('bauhaus.ttf') format('truetype');
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #fff;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      flex-wrap: nowrap;
+      overflow-x: auto; /* allow horizontal scroll on mobile */
+    }
+
+    header .logo {
+      display: flex;
+      align-items: center;
+      margin-right: 20px;
+      flex-shrink: 0;
+    }
+
+    header .logo img {
+      height: 50px;
+    }
+
+    .main-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 30px;
+      flex-grow: 1;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+    }
+
+    .nav-links,
+    .lang-switch {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      gap: 10px;
+      flex-wrap: nowrap;
+    }
+
+    .nav-link,
+    .lang-link {
+      text-decoration: none;
+      color: #333;
+      padding: 5px;
+      font-weight: 600;
+      transition: color 0.3s ease, border-bottom 0.3s ease;
+    }
+
+    .nav-link:hover,
+    .nav-link.active,
+    .lang-link:hover,
+    .lang-link.active {
+      color: #e60000;
+      border-bottom: 2px solid #e60000;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 100px 20px 20px;
+      text-align: center;
+      background-image: url('background-hero-v.6.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: #fff;
+    }
+
+    .sun {
+      position: absolute;
+      bottom: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      background-color: #fff;
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+      animation: sunRise 3s ease-in-out forwards;
+    }
+
+    @keyframes sunRise {
+      0% {
+        width: 0;
+        height: 0;
+        opacity: 0;
+        bottom: 20%;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        width: 15em;
+        height: 15em;
+        bottom: 52vh;
+        opacity: 1;
+      }
+    }
+
+    .hero h1 {
+      font-family: 'Bauhaus', sans-serif;
+      font-size: 6rem;
+      margin-bottom: 20px;
+      color: #e60000;
+      position: relative;
+      z-index: 10;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 600px;
+      color: #fff;
+      position: relative;
+      z-index: 10;
+    }
+
+    section {
+      padding: 80px 20px;
+    }
+
+    section h2 {
+      text-align: center;
+      font-family: 'Bauhaus', sans-serif;
+      font-size: 2.5rem;
+      margin-bottom: 40px;
+      color: #e60000;
+    }
+
+    .projects {
+      display: flex;
+      flex-direction: column;
+      gap: 60px;
+    }
+
+    .project {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .project h3 {
+      font-family: 'Bauhaus', sans-serif;
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      color: #e60000;
+    }
+
+    .project p {
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+      text-align: justify;
+    }
+
+    .slideshow {
+      position: relative;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: fit-content;
+      max-width: 100%;
+      overflow: hidden;
+      transition: width 0.6s ease-in-out, height 0.6s ease-in-out;
+    }
+
+    .slideshow img {
+      display: block;
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 90vh;
+      opacity: 0;
+      transition: opacity 1s ease-in-out, transform 0.6s ease-in-out;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .slideshow img.active {
+      position: relative;
+      opacity: 1;
+      z-index: 1;
+      transform: scale(1.01);
+      pointer-events: auto;
+    }
+
+    @media (max-width: 768px) {
+      .slideshow {
+        border: none;
+        width: 100% !important;
+      }
+      .slideshow img {
+        position: static;
+        width: 100%;
+        height: auto;
+        max-height: 60vh;
+        object-fit: contain;
+        opacity: 1;
+      }
+      .slideshow img:not(.active) {
+        display: none;
+      }
+    }
+
+
+    .about, .contact {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    #about {
+      padding-top: 120px;
+      margin-top: -80px;
+    }
+
+    .contact a {
+      color: #e60000;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    #contact {
+      padding-top: 120px;
+      margin-top: -80px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #f7f7f7;
+      color: #777;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 3rem;
+      }
+      .hero p {
+        font-size: 1rem;
+      }
+      .about div {
+        flex-direction: column;
+      }
+      .about img {
+        max-width: 100%;
+      }
+      .sun {
+        width: 10em !important;
+        height: 10em !important;
+        bottom: 58vh !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Original content continues here -->
+
+  <header>
+    <div class="logo">
+      <img src="logo.png" alt="Company Logo">
+    </div>
+    <nav class="main-nav">
+      <ul class="nav-links">
+        <li><a href="#home" class="nav-link active">Home</a></li>
+        <li><a href="#projects" class="nav-link">Projects</a></li>
+        <li><a href="#about" class="nav-link">About</a></li>
+        <li><a href="#contact" class="nav-link">Contact</a></li>
+      </ul>
+      <ul class="lang-switch">
+        <li><a href="index.html" class="lang-link active">EN</a></li>
+        <li><a href="index-ru.html" class="lang-link">RU</a></li>
+        <li><a href="index-kz.html" class="lang-link">KZ</a></li>
+      </ul>
+    </nav>
+  </header>
+  <section id="home" class="hero">
+    <div class="sun"></div>
+    <h1>ATSP</h1>
+    <p><span style="margin: 0 10px"></span></p>
+    <p style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);">
+      <strong>Almaty Tempo Space Planning</strong>
+    </p>    
+    <p><span style="margin: 0 10px"></span></p>
+    <p>Inspired by Scandinavian and Japanese styles, we strive for minimalism, functionality and light. Our commercial and industrial projects feature clean lines, spatial organization and high space efficiency.</p>
+  </section>
+
+
+  
+  <!-- Projects Section -->
+  <section id="projects" class="projects">
+    <h2>Projects</h2>
+    <!-- Project 1 -->
+    <div class="project">
+      <h3>Chunky Cookies Flagship Store</h3>
+      <p><strong>Location:</strong> Almaty, Kazakhstan<br>
+      <strong>Type:</strong> Retail Interior Architecture</p>
+      <p>The flagship store for Chunky Cookies was envisioned as a sensory space that blends playful branding with architectural minimalism. Drawing inspiration from the brand’s bold, chunky aesthetics, the interior features soft curves, warm natural textures, and accent elements in creamy pastels and cookie-inspired tones.</p>
+
+      <p>Spatial zoning creates a fluid customer journey—from the expressive cookie counter to a cozy seating area framed by a sculptural cookie-wall backdrop. Lighting and materials were selected to enhance the tactile experience of both the product and the space, while maintaining operational functionality and brand consistency.</p>
+
+      <p>The result is a retail environment that’s both Instagrammable and architecturally grounded, reflecting Chunky’s playful identity in a mature, design-forward manner.</p>
+
+      <div class="slideshow" data-index="0">
+        <img src="projectimages\chunky\project1a.a.png" alt="Project One Image 1" class="active">
+        <img src="projectimages\chunky\project1a.png" alt="Project One Image 2">
+        <img src="projectimages\chunky\project1b.png" alt="Project One Image 3">
+        <img src="projectimages\chunky\project1c.png" alt="Project One Image 4">
+        <img src="projectimages\chunky\project1d.png" alt="Project One Image 5">
+        <img src="projectimages\chunky\project1e.jpeg" alt="Project One Image 6">
+        <img src="projectimages\chunky\project1f.jpeg" alt="Project One Image 7">
+      </div>
+    </div>
+    <!-- Project 2 -->
+    <div class="project">
+      <h3>House Project in the Forest</h3>
+      <p><strong>Location:</strong> Suburban Area near Almaty, Kazakhstan<br>
+        <strong>Type:</strong> Private Residential Architecture</p>
+      <p>
+        This two-story residential project is nestled in a forested environment, designed to harmonize with nature while offering modern comfort. The architecture balances clean modernist lines with warm natural materials such as wood, stone, and textured concrete.
+      </p>
+    
+      <p>
+        Full-height glazing opens the home to the landscape, enhancing the connection between indoors and outdoors. The layout includes an open-plan living area, a pergola-shaded entrance, and an outdoor dining terrace that encourages year-round use.
+      </p>
+    
+      <p>
+        The result is a minimalist, nature-integrated home that reflects both functionality and calm elegance — a perfect forest-side retreat grounded in architectural precision.
+      </p>
+      <div class="slideshow" data-index="0">
+        <img src="projectimages\foresthouse\project2a.png" alt="Project Two Image 1" class="active">
+        <img src="projectimages\foresthouse\project2b.png" alt="Project Two Image 2">
+        <img src="projectimages\foresthouse\project2c.png" alt="Project Two Image 3">
+      </div>
+    </div>
+    <div class="project">
+      <h3>Interior of the house</h3>
+      <p><strong>Location:</strong> Almaty, Kazakhstan<br>
+        <p><strong>Type:</strong> Residential Interior Architecture</p>
+          <p>
+            This apartment interior was conceived as a refined yet welcoming home environment, striking a balance between elegant form and everyday functionality. Open-plan living areas flow seamlessly into private zones, with clean architectural lines softened by warm materials and layered lighting to foster a sense of intimate comfort.
+          </p>
+
+          <p>
+            A soothing palette of ivory, warm taupe, and soft charcoal anchors each space, accented by natural oak millwork and plush upholstery. Custom millwork defines storage and display elements without interrupting sightlines, while strategic pendant and recessed lighting highlight key features—creating both an inviting ambiance for gatherings and cozy retreats for relaxation.
+          </p>
+
+          <p>
+            The result is a harmonious residential setting that marries comfort, aesthetic coherence, and efficient flow—an elegant living experience shaped by architectural clarity and contemporary warmth.
+          </p>      
+      <div class="slideshow" data-index="0">
+        <img src="projectimages\houseinterior\project3a.png" alt="Project Three Image 1" class="active">
+        <img src="projectimages\houseinterior\project3b.png" alt="Project Three Image 2">
+        <img src="projectimages\houseinterior\project3c.png" alt="Project Three Image 3">
+        <img src="projectimages\houseinterior\project3d.png" alt="Project Three Image 4">
+        <img src="projectimages\houseinterior\project3e.png" alt="Project Three Image 5">
+        <img src="projectimages\houseinterior\project3f.png" alt="Project Three Image 6">
+        <img src="projectimages\houseinterior\project3g.png" alt="Project Three Image 7">
+        <img src="projectimages\houseinterior\project3h.png" alt="Project Three Image 8">
+        <img src="projectimages\houseinterior\project3i.jpg" alt="Project Three Image 9">
+        <img src="projectimages\houseinterior\project3j.jpg" alt="Project Three Image 10">
+        <img src="projectimages\houseinterior\project3k.jpg" alt="Project Three Image 11">
+        <img src="projectimages\houseinterior\project3l.jpg" alt="Project Three Image 12">
+        <img src="projectimages\houseinterior\project3m.jpg" alt="Project Three Image 13">
+        <img src="projectimages\houseinterior\project3n.png" alt="Project Three Image 14">
+        <img src="projectimages\houseinterior\project3o.png" alt="Project Three Image 15">
+        <img src="projectimages\houseinterior\project3p.png" alt="Project Three Image 16">
+        <img src="projectimages\houseinterior\project3q.png" alt="Project Three Image 17">
+        <img src="projectimages\houseinterior\project3r.png" alt="Project Three Image 18">
+        <img src="projectimages\houseinterior\project3s.png" alt="Project Three Image 19">
+      </div>
+    </div>
+    <div class="project">
+      <h3>Basement floor Interior</h3>
+      <p><strong>Location:</strong> Almaty, Kazakhstan<br>
+        <p><strong>Type:</strong> Residential Interior Architecture</p>
+          <p>
+            Designed as a sophisticated subterranean retreat, the basement level is zoned into distinct social and leisure areas—an intimate bar, a dynamic game corner, a sculptural stair garden, and a cozy screening lounge. Dark textured walls and blackened steel accents ground the space, while warms of amber light and timber enrich the atmosphere with inviting depth.
+          </p>
+
+          <p>
+            The custom bar combines rich oak millwork with back-lit slatted cabinetry and open display shelves, creating a boutique-style focal point. Adjacent, a billiards nook is framed by gallery-style pool-photography panels and leather-upholstered stools, offering both visual interest and relaxed social interaction under adjustable track lighting.
+          </p>
+
+          <p>
+            A floating oak stairway, illuminated by integrated LED strips, hovers above a minimalist rock garden planted with ornamental grasses—introducing a touch of Zen-inspired nature. Beyond, a plush modular seating arrangement and layered acoustic panels define the media lounge, where recessed ceiling lights and a large projection wall deliver a refined cinematic experience.
+          </p>
+
+          <p>
+            The result is a harmonious lower-level ensemble that balances entertainment and tranquility—an architecturally clear yet warmly layered basement that extends the home’s elegance into every corner.
+          </p>     
+      <div class="slideshow" data-index="0">
+        <img src="projectimages\basementfloor\project4a.png" alt="Project Four Image 1" class="active">
+        <img src="projectimages\basementfloor\project4b.png" alt="Project Four Image 2">
+        <img src="projectimages\basementfloor\project4c.png" alt="Project Four Image 3">
+        <img src="projectimages\basementfloor\project4d.png" alt="Project Four Image 4">
+      </div>
+    </div>
+    <!-- Add more projects as needed -->
+  </section>
+  
+  <!-- About Section -->
+  <section id="about" class="about">
+    <h2>About</h2>
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 40px; justify-content: center;">
+      <!--<img src="ruslan.png" alt="Architectural work by Ruslan Djoldybaev" style="max-width: 400px; width: 100%; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">-->
+      <p style="max-width: 500px; text-align: left;">
+        <strong>Mission:</strong> To design spaces that elevate everyday life through simplicity, natural light, and architectural clarity. ATSP is committed to creating thoughtful environments where beauty and function coexist in harmony.
+        <br><br>
+        <strong>Vision:</strong> To become a leading architecture studio in Central Asia recognized for blending modern minimalism with regional sensitivity — shaping cities and experiences with integrity and timeless aesthetics.
+      </p>
+    </div>
+  </section>
+  
+  <!-- Contact Section -->
+  <section id="contact" class="contact">
+    <h2>Contact</h2>
+    <p>
+      For inquiries, please email <a href="mailto:contact@example.com">ruslan.dzhol.21@gmail.com</a></p>
+    <p>
+      or call <strong>+7 706 904 9397</strong>.
+    </p>
+  </section>
+  
+  <!-- Footer -->
+  <footer style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background-color: #f7f7f7; color: #777;">
+    <p>&copy; 2025 Ruslan Djoldybaev. All rights reserved.</p>
+    <a href="https://www.instagram.com/sawletshi/" target="_blank" style="display: flex; align-items: center; text-decoration: none; color: #e60000; font-weight: 600;">
+      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" style="width: 20px; height: 20px; margin-right: 8px;">
+      sawletshi
+    </a>
+    <a href="https://www.instagram.com/parziwal/" target="_blank" style="display: flex; align-items: center; text-decoration: none; color: #777">
+      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" style="width: 20px; height: 20px; margin-right: 6px;">
+      developed by @parziwal
+    </a>
+  </footer>
+  
+  
+  
+  <!-- JavaScript for Navigation and Slideshow -->
+  <script>
+    const sections = document.querySelectorAll("section");
+    const navLinks = document.querySelectorAll(".nav-link");
+
+    window.addEventListener("scroll", () => {
+      let currentSectionId = "";
+      sections.forEach(section => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= 150 && rect.bottom >= 150) {
+          currentSectionId = section.getAttribute("id");
+        }
+      });
+      navLinks.forEach(link => {
+        link.classList.remove("active");
+        if (link.getAttribute("href") === "#" + currentSectionId) {
+          link.classList.add("active");
+        }
+      });
+    });
+
+    document.querySelectorAll('.slideshow').forEach(slideshow => {
+      const slides = slideshow.querySelectorAll('img');
+      let index = 0;
+
+      const updateSlide = () => {
+        slides.forEach(img => img.classList.remove('active'));
+        const activeImg = slides[index];
+        activeImg.classList.add('active');
+      };
+
+      updateSlide();
+      setInterval(() => {
+        index = (index + 1) % slides.length;
+        updateSlide();
+      }, 3000);
+    });
+  </script>
+</body>
+</html>

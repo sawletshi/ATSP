@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ATSP - Almaty Tempo Space Planning</title>
+  <link rel="icon" type="image/x-icon" href="icon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'Bauhaus';
+      src: url('bauhaus_ru.ttf') format('truetype');
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #fff;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      flex-wrap: nowrap;
+      overflow-x: auto; /* allow horizontal scroll on mobile */
+    }
+
+    header .logo {
+      display: flex;
+      align-items: center;
+      margin-right: 20px;
+      flex-shrink: 0;
+    }
+
+    header .logo img {
+      height: 50px;
+    }
+
+    .main-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 30px;
+      flex-grow: 1;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+    }
+
+    .nav-links,
+    .lang-switch {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      gap: 10px;
+      flex-wrap: nowrap;
+    }
+
+    .nav-link,
+    .lang-link {
+      text-decoration: none;
+      color: #333;
+      padding: 5px;
+      font-weight: 600;
+      transition: color 0.3s ease, border-bottom 0.3s ease;
+    }
+
+    .nav-link:hover,
+    .nav-link.active,
+    .lang-link:hover,
+    .lang-link.active {
+      color: #e60000;
+      border-bottom: 2px solid #e60000;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 100px 20px 20px;
+      text-align: center;
+      background-image: url('background-hero-v.6.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: #fff;
+    }
+
+    .sun {
+      position: absolute;
+      bottom: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      background-color: #fff;
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+      animation: sunRise 3s ease-in-out forwards;
+    }
+
+    @keyframes sunRise {
+      0% {
+        width: 0;
+        height: 0;
+        opacity: 0;
+        bottom: 20%;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        width: 15em;
+        height: 15em;
+        bottom: 52vh;
+        opacity: 1;
+      }
+    }
+
+    .hero h1 {
+      font-family: 'Bauhaus', sans-serif;
+      font-size: 6rem;
+      margin-bottom: 20px;
+      color: #e60000;
+      position: relative;
+      z-index: 10;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 600px;
+      color: #fff;
+      position: relative;
+      z-index: 10;
+    }
+
+    section {
+      padding: 80px 20px;
+    }
+
+    section h2 {
+      text-align: center;
+      font-family: 'Bauhaus', sans-serif;
+      font-size: 2.5rem;
+      margin-bottom: 40px;
+      color: #e60000;
+    }
+
+    .projects {
+      display: flex;
+      flex-direction: column;
+      gap: 60px;
+    }
+
+    .project {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .project h3 {
+      font-family: 'Bauhaus', sans-serif;
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      color: #e60000;
+    }
+
+    .project p {
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+      text-align: justify;
+    }
+
+    .slideshow {
+      position: relative;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: fit-content;
+      max-width: 100%;
+      overflow: hidden;
+      transition: width 0.6s ease-in-out, height 0.6s ease-in-out;
+    }
+
+    .slideshow img {
+      display: block;
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 90vh;
+      opacity: 0;
+      transition: opacity 1s ease-in-out, transform 0.6s ease-in-out;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .slideshow img.active {
+      position: relative;
+      opacity: 1;
+      z-index: 1;
+      transform: scale(1.01);
+      pointer-events: auto;
+    }
+
+    @media (max-width: 768px) {
+      .slideshow {
+        border: none;
+        width: 100% !important;
+      }
+      .slideshow img {
+        position: static;
+        width: 100%;
+        height: auto;
+        max-height: 60vh;
+        object-fit: contain;
+        opacity: 1;
+      }
+      .slideshow img:not(.active) {
+        display: none;
+      }
+    }
+
+
+    .about, .contact {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    #about {
+      padding-top: 120px;
+      margin-top: -80px;
+    }
+
+    .contact a {
+      color: #e60000;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    #contact {
+      padding-top: 120px;
+      margin-top: -80px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #f7f7f7;
+      color: #777;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 3rem;
+      }
+      .hero p {
+        font-size: 1rem;
+      }
+      .about div {
+        flex-direction: column;
+      }
+      .about img {
+        max-width: 100%;
+      }
+      .sun {
+        width: 10em !important;
+        height: 10em !important;
+        bottom: 58vh !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <img src="logo.png" alt="Компания логотипі">
+    </div>
+    <nav class="main-nav">
+      <ul class="nav-links">
+        <li><a href="#home" class="nav-link active">Басты бет</a></li>
+        <li><a href="#projects" class="nav-link">Жобалар</a></li>
+        <li><a href="#about" class="nav-link">Біз туралы</a></li>
+        <li><a href="#contact" class="nav-link">Байланыс</a></li>
+      </ul>
+      <ul class="lang-switch">
+        <li><a href="index.html" class="lang-link">EN</a></li>
+        <li><a href="index-ru.html" class="lang-link">RU</a></li>
+        <li><a href="index-kz.html" class="lang-link active">KZ</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section id="home" class="hero">
+    <div class="sun"></div>
+    <h1>ATSP</h1>
+    <p><span style="margin: 0 20px"></span></p>
+    <p style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);">
+      <strong>Almaty Tempo Space Planning</strong>
+    </p>
+    <p><span style="margin: 0 10px"></span></p>
+    <p>
+      Скандинавиялық және жапондық стильдерден шабыттанып, біз минимализмге, функционалдылыққа және жарыққа ұмтыламыз. Біздің коммерциялық және өнеркәсіптік жобаларымызда таза сызықтар, кеңістікті ұйымдастыру және жоғары кеңістік тиімділігі көрініс табады.
+    </p>
+  </section>
+
+  <section id="projects" class="projects">
+    <h2>Жобалар</h2>
+
+    <!-- Жоба 1 -->
+    <div class="project">
+      <h3>Chunky Cookies фирмалық дүкені</h3>
+      <p>
+        <strong>Орналасқан жері:</strong> Алматы, Қазақстан<br>
+        <strong>Түрі:</strong> Сауда интерьер сәулеті
+      </p>
+      <p>
+        Chunky Cookies фирмалық дүкені — ойынға толы брендинг пен архитектуралық минимализмді біріктіретін сенсорлық кеңістік ретінде ойластырылды. Интерьерде жұмсақ қисықтар, жылы табиғи текстуралар және печенье реңктеріндегі кремді пастель тондары қолданылады.
+      </p>
+      <p>
+        Кеңістік аймақтарын бөлу клиенттердің қозғалысын жеңілдетеді — экспрессивті печенье тұғырынан мүсіндік «печенье қабырғасы» аяғына дейін. Жарықтандыру мен материалдар өнім мен кеңістіктің тактильді әсерін арттыру үшін таңдалып, функция мен бренд бірегейлігін сақтайды.
+      </p>
+      <p>
+        Нәтижесінде әлеуметтік желілерге лайықты әрі архитектуралық тұрғыдан негізделген сауда ортасы пайда болды, ол Chunky-дің ойын-сауатты тұлғасын жетілген және дизайнға бағдарланған стильде көрсетеді.
+      </p>
+      <div class="slideshow" data-index="0">
+        <img src="projectimages\chunky\project1a.a.png" alt="Жоба суреті 1" class="active">
+        <img src="projectimages\chunky\project1a.png" alt="Жоба суреті 2">
+        <img src="projectimages\chunky\project1b.png" alt="Жоба суреті 3">
+        <img src="projectimages\chunky\project1c.png" alt="Жоба суреті 4">
+        <img src="projectimages\chunky\project1d.png" alt="Жоба суреті 5">
+        <img src="projectimages\chunky\project1e.jpeg" alt="Жоба суреті 6">
+        <img src="projectimages\chunky\project1f.jpeg" alt="Жоба суреті 7">
+      </div>
+    </div>
+
+    <!-- Жоба 2 -->
+    <div class="project">
+      <h3>Ормандағы үй жобасы</h3>
+      <p>
+        <strong>Орналасқан жері:</strong> Алматы маңы, Қазақстан<br>
+        <strong>Түрі:</strong> Тұрмыстық тұрғын үй сәулеті
+      </p>
+      <p>
+        Бұл екі қабатты тұрғын үй жобасы орманды ортада орналасып, табиғатпен үйлесімді заманауи жайлылықты ұсынады. Архитектурада таза модернистік сызықтар ағаш, тас және құрылымды бетон сияқты жылы табиғи материалдармен үйлестірілген.
+      </p>
+      <p>
+        Толық биіктіктегі әйнек үйді қоршаған ландшафтқа біріктіріп, ішкі және сыртқы кеңістіктің байланысын күшейтеді. Жоспарлауда ашық жоспарлы қонақ бөлме, пергола астындағы кіреберіс және жыл бойы қолданылатын сыртқы асхана дәлізі қарастырылған.
+      </p>
+      <p>
+        Нәтижесінде функционалдылық пен тыныш әсемдікті бейнелейтін минималистік табиғатпен үйлескен үй пайда болды — орман жиегіндегі мінсіз демалыс орны архитектуралық нақтылықпен орындалған.
+      </p>
+      <div class="slideshow" data-index="0">
+        <img src="projectimages\foresthouse\project2a.png" alt="Жоба суреті 1" class="active">
+        <img src="projectimages\foresthouse\project2b.png" alt="Жоба суреті 2">
+        <img src="projectimages\foresthouse\project2c.png" alt="Жоба суреті 3">
+      </div>
+    </div>
+
+    <!-- Жоба 3 -->
+    <div class="project">
+      <h3>Үй интерьері</h3>
+      <p>
+        <strong>Орналасқан жері:</strong> Алматы, Қазақстан<br>
+        <strong>Түрі:</strong> Тұрмыстық интерьер сәулеті
+      </p>
+      <p>
+        Бұл пәтер интерьері нәзік әрі жылы үй атмосферасын жасауға бағытталған, онда зерделі форма мен күнделікті функционалдылық үйлеседі. Ашық жоспарлы қонақ бөлме жеке аймақтарға біртұтас жалғасып, таза сәулеттік сызықтар жылы материалдар мен қабатталған жарықтандыру арқылы жұмсартылады.
+      </p>
+      <p>
+        Ірімшіг терімен боялған палитра, жылы сұртау және жұмсақ көмір түсі әр аймақтың негізін қаласа, оған табиғи дубтан жасалған жиһаздар мен жұмсақ матамен қапталған орындықтар сән береді. Тапсырыс бойынша шкафтар мен дисплей элементтері көріністі бөгемей орналастырылса, стратегиялық тапсырылған және кірістірілген жарық беру элементтері маңызды бөлшектерді ерекшелейді.
+      </p>
+      <p>
+        Нәтижесінде үйлесімді тұрғын үй кеңістігі пайда болды, онда жайлылық, эстетикалық тұтастық және тиімді ұйымдастыру үйлеседі — сәулеттік нақтылық пен заманауи жылулық арқылы қалыптасқан талғампаз өмір стилі.
+      </p>
+      <div class="slideshow" data-index="0">
+        <img src="projectimages\houseinterior\project3a.png" alt="Жоба суреті 1" class="active">
+        <img src="projectimages\houseinterior\project3b.png" alt="Жоба суреті 2">
+        <img src="projectimages\houseinterior\project3c.png" alt="Жоба суреті 3">
+        <img src="projectimages\houseinterior\project3d.png" alt="Жоба суреті 4">
+        <img src="projectimages\houseinterior\project3e.png" alt="Жоба суреті 5">
+        <img src="projectimages\houseinterior\project3f.png" alt="Жоба суреті 6">
+        <img src="projectimages\houseinterior\project3g.png" alt="Жоба суреті 7">
+        <img src="projectimages\houseinterior\project3h.png" alt="Жоба суреті 8">
+        <img src="projectimages\houseinterior\project3i.jpg" alt="Жоба суреті 9">
+        <img src="projectimages\houseinterior\project3j.jpg" alt="Жоба суреті 10">
+        <img src="projectimages\houseinterior\project3k.jpg" alt="Жоба суреті 11">
+        <img src="projectimages\houseinterior\project3l.jpg" alt="Жоба суреті 12">
+        <img src="projectimages\houseinterior\project3m.jpg" alt="Жоба суреті 13">
+        <img src="projectimages\houseinterior\project3n.png" alt="Жоба суреті 14">
+        <img src="projectimages\houseinterior\project3o.png" alt="Жоба суреті 15">
+        <img src="projectimages\houseinterior\project3p.png" alt="Жоба суреті 16">
+        <img src="projectimages\houseinterior\project3q.png" alt="Жоба суреті 17">
+        <img src="projectimages\houseinterior\project3r.png" alt="Жоба суреті 18">
+        <img src="projectimages\houseinterior\project3s.png" alt="Жоба суреті 19">
+      </div>
+    </div>
+
+    <!-- Жоба 4 -->
+    <div class="project">
+      <h3>Подвал қабатының интерьері</h3>
+      <p>
+        <strong>Орналасқан жері:</strong> Алматы, Қазақстан<br>
+        <strong>Түрі:</strong> Тұрмыстық интерьер сәулеті
+      </p>
+      <p>
+        Бұл цоколь қабаты ақылды әрі талғампаз подземный тынығу орны ретінде жобаланды. Кеңістік бірнеше аймаққа бөлінген — жайлы бар, динамикалық ойын бұрышы, мүсіндік баспалдақ бағы және ыңғайлы кинотеатр. Қара фактуралы қабырғалар мен қара металл элементтері кеңістікті бекітсе, жылы янтарь жарықтары мен ағаш акценттері атмосфераға тереңдік пен қонақжайлылық қосады.
+      </p>
+      <p>
+        Тапсырыс бойынша жасалған бар дубтан жасалған каркасы, артқы жарықпен жалюзиді панельдер мен ашық сөрелерімен бутиктік назар ауыстыру нүктесі болып табылады. Жанында быллиард бұрышы быллиард доптарының фотосуреттері мен быллиард таяқшалары арқылы безендіріліп, терімен қапталған табуреттер трек шамдары астында еркін әңгімелесуге мүмкіндік береді.
+      </p>
+      <p>
+        LED ленталармен жарықтандырылған парящая дуб баспалдақ минималистік рок бағы үстінде ілініп тұрады, бұл дзендік табиғат элементін енгізеді. Одан әрі модульдік жұмсақ жиһаздар мен дыбысты оқшауылəy панельдер медиа аймақты қалыптастырады, мұнда кірістірілген төбелік жарықтар мен үлкен проекциялық экран талғампаз кинотеатр тәжірибесін қамтамасыз етеді.
+      </p>
+      <p>
+        Нәтижесінде ойын-сауық пен тыныштықты үйлестіретін үйлесімді төменгі деңгей ансамблі пайда болды — архитектуралық тұрғыдан түсінікті, бірақ жылы қабатталған цоколь үйдің әсемдігін әр бұрышына жеткізеді.
+      </p>
+      <div class="slideshow" data-index="0">
+        <img src="projectimages\basementfloor\project4a.png" alt="Жоба суреті 1" class="active">
+        <img src="projectimages\basementfloor\project4b.png" alt="Жоба суреті 2">
+        <img src="projectimages\basementfloor\project4c.png" alt="Жоба суреті 3">
+        <img src="projectimages\basementfloor\project4d.png" alt="Жоба суреті 4">
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="about">
+    <h2>Біз туралы</h2>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:40px;justify-content:center;">
+      <p style="max-width:500px;text-align:left;">
+        <strong>Миссия:</strong> Күнделікті өмірді қарапайымдылық, табиғи жарық және сәулеттік нақтылық арқылы жақсарту үшін кеңістіктер жобалау.<br><br>
+        <strong>Көрініс:</strong> Орталық Азияда заманауи минимализмді және аймақтық мәнерді үйлестіретін жетекші сәулет студиясына айналу — адалдық пен уақыт сынынан өткен эстетика арқылы қалалар мен тәжірибелер құру.
+      </p>
+    </div>
+  </section>
+
+  <section id="contact" class="contact">
+    <h2>Байланыс</h2>
+    <p>Сұрақтар бойынша жазыңыз: <a href="mailto:ruslan.dzhol.21@gmail.com">ruslan.dzhol.21@gmail.com</a></p>
+    <p>немесе қоңырау шалыңыз: <strong>+7 706 904 9397</strong>.</p>
+  </section>
+
+  <footer style="display:flex;justify-content:space-between;align-items:center;padding:20px;background-color:#f7f7f7;color:#777;">
+    <p>&copy; 2025 Ruslan Djoldybaev. Барлық құқықтар қорғалған.</p>
+    <a href="https://www.instagram.com/sawletshi/" target="_blank" style="display:flex;align-items:center;text-decoration:none;color:#e60000;font-weight:600;">
+      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" style="width:20px;height:20px;margin-right:8px;">
+      sawletshi
+    </a>
+    <a href="https://www.instagram.com/parziwal/" target="_blank" style="display:flex;align-items:center;text-decoration:none;color:#777;">
+      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" style="width:20px;height:20px;margin-right:6px;">
+      @parziwal әзірлеген
+    </a>
+  </footer>
+
+  <script>
+    const sections = document.querySelectorAll("section");
+    const navLinks = document.querySelectorAll(".nav-link");
+
+    window.addEventListener("scroll", () => {
+      let currentSectionId = "";
+      sections.forEach(section => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= 150 && rect.bottom >= 150) {
+          currentSectionId = section.getAttribute("id");
+        }
+      });
+      navLinks.forEach(link => {
+        link.classList.remove("active");
+        if (link.getAttribute("href") === "#" + currentSectionId) {
+          link.classList.add("active");
+        }
+      });
+    });
+
+    document.querySelectorAll('.slideshow').forEach(slideshow => {
+      const slides = slideshow.querySelectorAll('img');
+      let index = 0;
+      const updateSlide = () => {
+        slides.forEach(img => img.classList.remove('active'));
+        const activeImg = slides[index];
+        activeImg.classList.add('active');
+      };
+      updateSlide();
+      setInterval(() => {
+        index = (index + 1) % slides.length;
+        updateSlide();
+      }, 3000);
+    });
+  </script>
+</body>
+</html>
